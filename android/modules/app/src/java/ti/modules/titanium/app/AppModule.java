@@ -21,6 +21,7 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.util.TiConvert;
 import org.appcelerator.titanium.util.TiPlatformHelper;
 import org.appcelerator.titanium.util.TiSensorHelper;
+import org.appcelerator.titanium.proxy.TiViewProxy;
 
 import android.app.Application;
 import android.content.Intent;
@@ -35,6 +36,7 @@ import android.support.v4.view.accessibility.AccessibilityManagerCompat;
 import android.support.v4.view.accessibility.AccessibilityManagerCompat.AccessibilityStateChangeListenerCompat;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityManager;
+import android.view.View;
 
 import com.appcelerator.aps.APSAnalytics;
 
@@ -243,10 +245,48 @@ public class AppModule extends KrollModule implements SensorEventListener
 			event.getText().clear();
 			event.getText().add(TiConvert.toString(arg));
 			accessibilityManager.sendAccessibilityEvent(event);
+			
+		} else if (eventName.equals(AndroidModule.EVENT_ACCESSIBILITY_FOCUS_CHANGED)) {
 
-		} else {
+			if (!getAccessibilityEnabled()) {
+				Log.w(TAG, "Accessibility focus changed ignored. Accessibility services are not enabled on this device.");
+				return;
+			}
+
+			if (arg == null) {
+				Log.w(TAG, "Accessibility focus changed ignored. No view was provided to request focus.");
+				return;
+			}
+
+			sendAccessibilityEventForView((TiViewProxy) arg, AccessibilityEventCompat.TYPE_VIEW_ACCESSIBILITY_FOCUSED);
+
+		} else if (eventName.equals(AndroidModule.EVENT_ACCESSIBILITY_VIEW_FOCUS_CHANGED)) {
+
+			if (!getAccessibilityEnabled()) {
+				Log.w(TAG, "Accessibility view focus changed ignored. Accessibility services are not enabled on this device.");
+				return;
+			}
+
+			if (arg == null) {
+				Log.w(TAG, "Accessibility  view focus changed ignored. No view was provided to request focus.");
+				return;
+			}
+
+			sendAccessibilityEventForView((TiViewProxy) arg, AccessibilityEvent.TYPE_VIEW_FOCUSED);
+			
+	    } else {
 			Log.w(TAG, "Unknown system event: " + eventName);
 		}
+	}
+	
+	private void sendAccessibilityEventForView(TiViewProxy viewProxy, int type) {
+		View view = viewProxy.getOrCreateView().getNativeView();
+		AccessibilityEvent event = AccessibilityEvent.obtain(type);
+		event.setSource(view);
+		event.setClassName(view.getClass().getName());
+		event.setPackageName(view.getContext().getPackageName());
+		event.setEnabled(true);
+		view.sendAccessibilityEventUnchecked(event);
 	}
 
 	@Override
