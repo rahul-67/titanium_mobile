@@ -100,7 +100,7 @@ public class TiUIHelper
 
 	private static Method overridePendingTransition;
 	private static Map<String, String> resourceImageKeys = Collections.synchronizedMap(new HashMap<String, String>());
-	private static Map<String, Typeface> mCustomTypeFaces =
+	public static Map<String, Typeface> mCustomTypeFaces =
 		Collections.synchronizedMap(new HashMap<String, Typeface>());
 
 	public static OnClickListener createDoNothingListener()
