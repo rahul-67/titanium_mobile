@@ -16,6 +16,8 @@ import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.util.TiUrl;
 
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.Color;
 import android.os.Message;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -94,6 +96,24 @@ public class ActionBarProxy extends KrollProxy
 			actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
 			actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
 			actionBar.setBackgroundDrawable(backgroundImage);
+		}
+	}
+
+	// clang-format off
+	@Kroll.method
+	@Kroll.setProperty
+	public void setBackgroundColor(String colorCode)
+	// clang-format on
+	{
+		if (actionBar == null) {
+			Log.w(TAG, "ActionBar is not enabled");
+			return;
+		}
+
+		if (colorCode != null) {
+			actionBar.setDisplayShowTitleEnabled(!showTitleEnabled);
+			actionBar.setDisplayShowTitleEnabled(showTitleEnabled);
+			actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor(colorCode)));
 		}
 	}
 
